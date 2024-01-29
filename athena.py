@@ -1,8 +1,13 @@
+# DATASETS WANTING TO USE:
+# "ConvAI3", https://convai.io/data/
+# "AmbigQA", https://nlp.cs.washington.edu/ambigqa/
+
 # Import packages
 import json
 import pandas as pd
 import numpy as np
 from difflib import get_close_matches
+import random
 
 # Load the knowledge from chatbot
 def load_knowledge(path):
@@ -46,7 +51,30 @@ def ask_name():
     knowledge["user"].append({"name": name})
     save_knowledge("data/knowledge.json", knowledge)
 
-        
+# Tell a joke
+def tell_joke():
+    # Print out question
+    print("Athena: What kind of joke do you want me to tell you?")
+    # Get the topic
+    topic = input(">")
+    # Check if topic exists.
+    if(any(key in topic for key in knowledge["fun"][0]["jokes"].keys())):
+        # Select the topic
+        topic = next(key for key in knowledge["fun"][0]["jokes"].keys() if key in topic)
+        amount = len(knowledge["fun"][0]["jokes"][topic.lower()])
+        joke = knowledge["fun"][0]["jokes"][topic.lower()][random.randint(0, amount-1)]
+        # Print out the joke's question.
+        print("Athena:", joke["question"])
+        # Get user's answer.
+        answer = input(">")
+        # Check if answer is right.
+        if(answer.lower() == joke["answer"].lower()):
+            print("Athena: That's right!")
+        else:
+            print("Athena:", joke["answer"])
+    else:
+        print("Athena: I can't think of any jokes related to that topic")
+
 def chatbot():
     # Infinite loop
     while True:
@@ -59,7 +87,9 @@ def chatbot():
 
         match = find_match(user_input, [question["question"] for question in knowledge["questions"]])
 
-        if(match):
+        if("tell me a joke" in user_input.lower()):
+            tell_joke()
+        elif(match):
             answer = "Athena: " + get_answer(match, knowledge)
             print(answer)
         else:

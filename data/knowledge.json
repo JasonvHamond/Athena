@@ -60,13 +60,44 @@
     {
       "question": "Ruh roh",
       "answer": "Ruh roh Raggy"
+    },
+    {
+      "question": "Would you lose?",
+      "answer": "Nah, I'd win"
+    },
+    {
+      "question": "lose you would?",
+      "answer": "win, I'd nah"
+    },
+    {
+      "question": "that's nice",
+      "answer": "Thank you"
     }
   ],
   "fun": [
     {
-      "jokes": [
-        
-      ]
+      "jokes": {
+        "science": [
+          {
+            "question": "Why don't scientists trust atoms?",
+            "answer": "Because they make up everything"
+          },
+          {
+            "question": "Why did the physics teacher break up with the biology teacher?",
+            "answer": "There was no chemistry"
+          }
+        ],
+        "bad": [
+          {
+            "question": "What did the vampire say in the dark?",
+            "answer": "I can't see"
+          },
+          {
+            "question": "What did the squid say?",
+            "answer": "I splata da tona"
+          }
+        ]
+      }
     }
   ]
 }
