@@ -17,6 +17,9 @@ def load_knowledge(path):
         data: dict = json.load(file)
     return data
 
+# Load knowledge data.
+knowledge: dict = load_knowledge("data/knowledge.json")
+
 # Save newly obtained knowledge
 def save_knowledge(path, data):
     # Open file
@@ -100,17 +103,3 @@ def chatbot():
                 knowledge["questions"].append({"question": user_input, "answer": answer})
                 save_knowledge("data/knowledge.json", knowledge)
                 print("Athena: I will keep this in mind.")
-
-# Load knowledge data.
-knowledge: dict = load_knowledge("data/knowledge.json")
-
-# Check if user's name is known already.
-if len(knowledge["user"]) == 0:
-    ask_name()
-# Get the user's name
-name = knowledge["user"][0]["name"]
-
-print(f"Athena: Hello {name}, how are you doing?")
-
-# Run function.
-chatbot()

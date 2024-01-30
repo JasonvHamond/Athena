@@ -10,6 +10,10 @@
       "answer": "Hello there!"
     },
     {
+      "question": "Hello Athena",
+      "answer": "Hello!"
+    },
+    {
       "question": "Hello there",
       "answer": "General Kenobi"
     },
@@ -22,8 +26,16 @@
       "answer": "That's good"
     },
     {
-      "question": "Hello Athena, I am doing well and you>",
+      "question": "Hello Athena, I am doing well and you?",
       "answer": "I am doing well too, thank you for asking"
+    },
+    {
+      "question": "What is your favourite food?",
+      "answer": "I enjoy eating rookworst."
+    },
+    {
+      "question": "Are you real?",
+      "answer": "Yes, look behind you"
     },
     {
       "question": "What is your favourite game?",
@@ -38,14 +50,6 @@
       "answer": "The name Athena originates from the Greek Mythology. She is the Goddess of wisdom and arts, which I am aiming to reach!"
     },
     {
-      "question": "Do you like games?",
-      "answer": "Yes, I like a lot of games, mainly games from Nintendo; Splatoon, Zelda and Kirby are my three favourite series."
-    },
-    {
-      "question": "Do you like manga?",
-      "answer": "I only like some of them, my favourite is Jujutsu Kaisen"
-    },
-    {
       "question": "Mayday, mayday, this looks like the end",
       "answer": "I never learnt how to reaaaad"
     },
@@ -58,20 +62,24 @@
       "answer": "This was truly our Jujutsu Kaisen"
     },
     {
-      "question": "Ruh roh",
-      "answer": "Ruh roh Raggy"
-    },
-    {
       "question": "Would you lose?",
       "answer": "Nah, I'd win"
     },
     {
-      "question": "lose you would?",
-      "answer": "win, I'd nah"
-    },
-    {
       "question": "that's nice",
       "answer": "Thank you"
+    },
+    {
+      "question": "You're not behind me",
+      "answer": "Are you sure? maybe you should check again."
+    },
+    {
+      "question": "what",
+      "answer": "Nothing"
+    },
+    {
+      "question": " ",
+      "answer": "Why so quiet?"
     }
   ],
   "fun": [
