@@ -80,6 +80,22 @@
     {
       "question": " ",
       "answer": "Why so quiet?"
+    },
+    {
+      "question": "I have been busy.",
+      "answer": "What have you been busy with?"
+    },
+    {
+      "question": "I am waiting for a package",
+      "answer": "What kind of package are you waiting for?"
+    },
+    {
+      "question": "I ordered some ",
+      "answer": "That sounds nice, I hope it will arrive soon"
+    },
+    {
+      "question": "I'm doing well too",
+      "answer": "Glad you're also doing fine!"
     }
   ],
   "fun": [

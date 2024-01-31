@@ -1,6 +1,11 @@
 # Import packages
 import flet as ft
 import Athena.athena as ath
+import random
+
+# Set knowledge variable.
+knowledge = ath.knowledge
+ath_question = ""
 
 # Message class
 class Message():
@@ -12,6 +17,10 @@ class Message():
 
 # ChatMessage c;ass
 class ChatMessage(ft.Row):
+    ath_question = ""
+    user_input = ""
+    ath_joke = ""
+    ath_joke_question = None
     # Build the class
     def __init__(self, message: Message):
         super().__init__()
@@ -43,7 +52,7 @@ class ChatMessage(ft.Row):
 
     # Get user's initials
     def get_initials(self, user_name: str):
-        if user_name:
+        if(user_name):
             return user_name[:1].capitalize()
         else:
             return "?"
@@ -75,12 +84,11 @@ def main(page: ft.Page):
     page.horizontal_alignment = "stretch"
     # Set page title.
     page.title = "Athena"
-    answer_ath = ""
 
     # Join the chat.
     def join_chat_click(e):
         # Check if a name had been filled in.
-        if not join_user_name.value:
+        if(not join_user_name.value):
             # Give error message
             join_user_name.error_text = "Please enter a valid name."
             join_user_name.update()
@@ -96,19 +104,15 @@ def main(page: ft.Page):
             page.update()
 
     # When message is sent.
-    def answer_athena(e):
-        # If t he message is not empty
-        if new_message.value != "":
-            # Send the message
-            page.pubsub.send_all(Message(page.session.get("user_name"), new_message.value, message_type="chat_message"))
-            page.update()
-
-    def athena_response(user_input: str):
+    def answer_athena(user_input: str):
+        # Let athena respond
         knowledge = ath.knowledge
+        ChatMessage.user_input = user_input
         match = ath.find_match(user_input, [question["question"] for question in knowledge["questions"]])
-        ### WIP ###
+        # Tell a joke
         if("tell me a joke" in user_input.lower()):
-            # ath.tell_joke()
+            ChatMessage.ath_joke = "What kind of joke do you want me to tell you?"
+            page.pubsub.send_all(Message("Athena", ChatMessage.ath_joke, message_type="chat_message"))
             return
         elif(match):
             answer = ath.get_answer(match, knowledge)
@@ -116,48 +120,66 @@ def main(page: ft.Page):
             page.update()
         else:
             # Ask question.
-            ath_question = "What would you like me to answer with?"
-            page.pubsub.send_all(Message("Athena", ath_question, message_type="chat_message"))
-            page.update()
-            # Get user answer
-
-            new_message.value = ""
-            new_message.focus()
+            ChatMessage.ath_question = "What would you like me to answer with?"
+            page.pubsub.send_all(Message("Athena", ChatMessage.ath_question, message_type="chat_message"))
             page.update()
 
-            ### NEEDS FIXES ###
-            new_message = ft.TextField(
-                hint_text="Write a message...",
-                autofocus=True,
-                shift_enter=True,
-                min_lines=1,
-                max_lines=5,
-                filled=True,
-                expand=True,
-                on_submit=answer_athena,
-            )
-
-            if(new_message.value.lower() != "skip"):
-                knowledge["questions"].append({"question": user_input, "answer": new_message.value})
-                ath.save_knowledge("data/knowledge.json", knowledge)
+    # When message is sent.
+    def send_message_click(e):
+        # If the message is not empty
+        if(new_message.value != ""):
+            if(ChatMessage.ath_question != "" and ChatMessage.ath_question != None): 
+                if(new_message.value.lower() != "skip"):
+                    knowledge["questions"].append({"question": ChatMessage.user_input, "answer": new_message.value})
+                    ath.save_knowledge("data/knowledge.json", knowledge)
+                    # Reset message value
+                    new_message.value = ""
+                    new_message.focus()
+                    page.update()
+                    # Write response for Athena.
+                    athena_response = "I will keep this in mind."
+                    page.pubsub.send_all(Message("Athena", athena_response, message_type="chat_message"))
+                    page.update()
+                    ChatMessage.ath_question = ""
+                    return
+            elif(ChatMessage.ath_joke != ""):
+                # Send the message
+                page.pubsub.send_all(Message(page.session.get("user_name"), new_message.value, message_type="chat_message"))
+                if(any(key in new_message.value.lower() for key in knowledge["fun"][0]["jokes"].keys())):
+                    # Select the topic
+                    topic = next(key for key in knowledge["fun"][0]["jokes"].keys() if key in new_message.value.lower())
+                    amount = len(knowledge["fun"][0]["jokes"][topic.lower()])
+                    joke = knowledge["fun"][0]["jokes"][topic.lower()][random.randint(0, amount-1)]
+                    # Print out the joke's question.
+                    page.pubsub.send_all(Message("Athena", joke["question"], message_type="chat_message"))
+                    ChatMessage.ath_joke_question = joke
+                else:
+                    page.pubsub.send_all(Message("Athena", "I can't think of any jokes related to that topic", message_type="chat_message"))
+                ChatMessage.ath_joke = ""
                 # Reset message value
                 new_message.value = ""
                 new_message.focus()
                 page.update()
-                # Write response for Athena.
-                athena_response = "I will keep this in mind."
-                page.pubsub.send_all(Message("Athena", athena_response.value, message_type="chat_message"))
+                return
+            elif(ChatMessage.ath_joke_question != None):
+                # Send the message
+                page.pubsub.send_all(Message(page.session.get("user_name"), new_message.value, message_type="chat_message"))
+                # Check if answer is right.
+                if(new_message.value.lower() == ChatMessage.ath_joke_question["answer"].lower()):
+                    # Give an answer from Athena
+                    page.pubsub.send_all(Message("Athena", "You got it!", message_type="chat_message"))
+                else:
+                    page.pubsub.send_all(Message("Athena", ChatMessage.ath_joke_question["answer"], message_type="chat_message"))
+                ChatMessage.ath_joke_question = None
+                # Reset message value
+                new_message.value = ""
+                new_message.focus()
                 page.update()
-
-    # When message is sent.
-    def send_message_click(e):
-        # If t he message is not empty
-        if new_message.value != "":
+                return
             # Send the message
             page.pubsub.send_all(Message(page.session.get("user_name"), new_message.value, message_type="chat_message"))
             page.update()
-            # Let athena respond
-            athena_response(new_message.value)
+            answer_athena(new_message.value)
             # Reset message value
             new_message.value = ""
             new_message.focus()
@@ -166,10 +188,10 @@ def main(page: ft.Page):
     # On message function
     def on_message(message: Message):
         # Check message type
-        if message.message_type == "chat_message":
+        if(message.message_type == "chat_message"):
             m = ChatMessage(message)
         # If message type is login message
-        elif message.message_type == "login_message":
+        elif(message.message_type == "login_message"):
             m = ft.Text(message.text, italic=True, color=ft.colors.GREEN_200, size=12)
         chat.controls.append(m)
         page.update()
@@ -236,4 +258,4 @@ def main(page: ft.Page):
     )
 
 # Start functions
-ft.app(port=8550, target=main, view=ft.WEB_BROWSER)
+ft.app(port=8550, target=main, view=ft.AppView.FLET_APP)
