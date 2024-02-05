@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from difflib import get_close_matches
 import random
+import os
 
 # Load the knowledge from chatbot
 def load_knowledge(path):
@@ -18,7 +19,7 @@ def load_knowledge(path):
     return data
 
 # Load knowledge data.
-knowledge: dict = load_knowledge("data/knowledge.json")
+knowledge: dict = load_knowledge(os.getcwd() + "/Athena/data/knowledge.json")
 
 # Save newly obtained knowledge
 def save_knowledge(path, data):

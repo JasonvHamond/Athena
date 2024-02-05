@@ -38,7 +38,6 @@ class ChatMessage(ft.Row):
                     # NEEDS WORK
                     foreground_image_url="images/Athena_logo.jpg",
                     background_image_url="https://raw.githubusercontent.com/JasonvHamond/Athena/main/images/Athena_logo.jpg?token=GHSAT0AAAAAACNPXSRZITKCI7OZQ2VHZF74ZN2HHZQ",
-                    content=ft.Text("Ath"),
                 ),
                 # Set message style
                 ft.Column(

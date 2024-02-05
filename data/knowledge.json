@@ -62,6 +62,10 @@
       "answer": "This was truly our Jujutsu Kaisen"
     },
     {
+      "question": "Nah, I would win",
+      "answer": "This was truly our Jujutsu Kaisen"
+    },
+    {
       "question": "Would you lose?",
       "answer": "Nah, I'd win"
     },
@@ -96,6 +100,38 @@
     {
       "question": "I'm doing well too",
       "answer": "Glad you're also doing fine!"
+    },
+    {
+      "question": "Good morning!",
+      "answer": "Good morning, have you had a good rest?"
+    },
+    {
+      "question": "Yes I have",
+      "answer": "That's great."
+    },
+    {
+      "question": "why not",
+      "answer": "Because no. Valid reason right?"
+    },
+    {
+      "question": "nice",
+      "answer": "Thank you."
+    },
+    {
+      "question": "that's good that's good I've been working",
+      "answer": "What are you working on?"
+    },
+    {
+      "question": "That's not what I said",
+      "answer": "Sorry, did I misunderstand anything?"
+    },
+    {
+      "question": "I never said anything like that",
+      "answer": "Sorry, did I misunderstand anything?"
+    },
+    {
+      "question": "yes",
+      "answer": "Good to know."
     }
   ],
   "fun": [
