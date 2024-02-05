@@ -81,7 +81,7 @@ def tell_joke():
         save(joke["question"], "en", file="Athena/data/jokequestion.mp3")
         # Speak the mp3 file
         playsound(os.getcwd() + '/Athena/data/jokequestion.mp3', True)
-        os.remove("data/jokequestion.mp3")
+        os.remove("Athena/data/jokequestion.mp3")
         # Get user's answer.
         with sr.Microphone() as source:
             r.adjust_for_ambient_noise(source, duration=0.2) 
@@ -97,7 +97,7 @@ def tell_joke():
             save(joke["answer"], "en", file="Athena/data/jokeanswer.mp3")
             # Speak the mp3 file
             playsound(os.getcwd() + '/Athena/data/jokeanswer.mp3', True)
-            os.remove("data/jokeanswer.mp3")
+            os.remove("Athena/data/jokeanswer.mp3")
     else:
         # Speak the mp3 file
         playsound(os.getcwd() + '/Athena/data/nojoke.mp3', True)
@@ -148,7 +148,7 @@ def chatbot():
             # Speak the mp3 file
             playsound(os.getcwd() + '/Athena/data/answer.mp3', True)
             
-            os.remove("data/answer.mp3")
+            os.remove("Athena/data/answer.mp3")
         else:
             # This happens in console for learning purposes.
             print("What would you like me to answer with?")
