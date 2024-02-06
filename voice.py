@@ -1,7 +1,12 @@
 # Import packages.
 import os
+from dotenv import load_dotenv
+from googleapiclient.discovery import build
 import pandas as pd
 import numpy as np
+from yt_dlp import YoutubeDL
+from moviepy.editor import AudioFileClip
+import vlc
 from difflib import get_close_matches
 import random
 from text_to_speech import save
@@ -14,6 +19,11 @@ import re
 # Load knowledge data.
 knowledge = ath.knowledge
 r = sr.Recognizer()
+# Load dotenv
+load_dotenv()
+# Get youtube API Key
+YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
+youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
 
 # Create general voice files:
 # PS: Bad spelling is for good pronounciation.
@@ -23,6 +33,7 @@ save("I can't think of any jokes related to that topic", "en", file="Athena/data
 save("That's right!", "en", file="Athena/data/right.mp3")
 save("Have a nice day!", "en", file="Athena/data/exit.mp3")
 save("What calculation would you like me to perform?", "en", file="Athena/data/whatcalc.mp3")
+save("Can I help with anything else?", "en", file="Athena/data/help.mp3")
 
 # Find matches
 def find_match(query, questions):
@@ -112,15 +123,51 @@ def math():
         audio = r.listen(source)
         # Save answer
         calc = r.recognize_google(audio)
-    calculation = calc.replace("x", "*").replace("^", "**")
-    if("√" in calculation):
-        calculation = f"np.sqrt({calculation.replace('√', '')})"
-    calculated = eval(calculation)
-    save(f"{calc} is {calculated}", "en", file="Athena/data/calculation.mp3")
-    print(f"{calc} is {calculated}")
+    try:
+        calculation = calc.replace("x", "*").replace("^", "**")
+        if("√" in calculation):
+            calculation = f"np.sqrt({calculation.replace('√', '')})"
+        calculated = eval(calculation)
+        save(f"{calc} is {calculated}", "en", file="Athena/data/calculation.mp3")
+        print(f"{calc} is {calculated}")
+    except:
+        save(f"A problem occured with the calculation.", "en", file="Athena/data/calculation.mp3")
     # Speak the mp3 file
     playsound(os.getcwd() + '/Athena/data/calculation.mp3', True)
     os.remove("Athena/data/calculation.mp3")
+
+def play_song(query):
+    # Tell the user that loading can take a bit.
+    save(f"Playing {query}, this can take a bit to load.", "en", file="Athena/data/playing.mp3")
+    playsound(os.getcwd() + "\Athena\data\playing.mp3", True)
+    # Create request.
+    request = youtube.search().list(
+        part = "id,snippet",
+        q = query,
+        maxResults = 1,
+        type = "video"
+    )
+    # Create response
+    response = request.execute()
+    # Get results as vid 
+    for vid in response["items"]:
+        # Get url.
+        url = f"https://www.youtube.com/watch?v={vid["id"]["videoId"]}"
+    
+    # Get the video
+    with YoutubeDL({'extract_audio': True, 'format': 'bestaudio', 'audio_format': 'mp3', 'outtmpl': 'Athena/data/youtube.mp3'}) as video:
+        info_dict = video.extract_info(url, download = True)
+        video_title = info_dict['title']
+        print(video_title)
+        # video.download(url)
+        print("Download completed")
+    audio_clip = AudioFileClip(os.getcwd() + "\Athena\data\youtube.mp3")
+    audio_clip.write_audiofile("Athena\data\youtube1.mp3", bitrate="192k")
+    # Play song
+    playsound(os.getcwd() + "\Athena\data\youtube1.mp3", block=True)
+    os.remove("Athena/data/youtube.mp3")
+    os.remove("Athena/data/youtube1.mp3")
+    os.remove("Athena/data/playing.mp3")
 
 def chatbot():
     # Infinite loop
@@ -138,13 +185,22 @@ def chatbot():
             # Speak the mp3 file
             playsound(os.getcwd() + '/Athena/data/exit.mp3', True)
             break
+        elif("play" in user_input.lower()):
+            # Remove play from the query
+            query = user_input.replace("play", "")
+            # Play the song.
+            play_song(query)
+            playsound(os.getcwd() + "/Athena/data/help.mp3", True)
+
         elif("tell me a joke" in user_input.lower()):
             tell_joke()
+            playsound(os.getcwd() + "/Athena/data/help.mp3", True)
         elif("calculate" in user_input.lower() or "math question" in user_input.lower() or "calculation" in user_input.lower()):
             math()
+            playsound(os.getcwd() + "/Athena/data/help.mp3", True)
         elif(match):
             answer = get_answer(match, knowledge)
-            save(answer, "en", file="data/answer.mp3")
+            save(answer, "en", file="Athena/data/answer.mp3")
             # Speak the mp3 file
             playsound(os.getcwd() + '/Athena/data/answer.mp3', True)
             
@@ -168,7 +224,7 @@ name = knowledge["user"][0]["name"]
 # save the joke's question.
 save(f"Hello {name}, what can I help you with?", "en", file="Athena/data/hello.mp3")
 # Speak the mp3 file
-playsound(os.getcwd() + '/Athena/data/hello.mp3', True)
+playsound(os.getcwd() + '/Athena/data/hello.mp3')
 
 # Run function.
 chatbot()
