@@ -132,6 +132,10 @@
     {
       "question": "yes",
       "answer": "Good to know."
+    },
+    {
+      "question": " exit",
+      "answer": "."
     }
   ],
   "fun": [

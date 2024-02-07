@@ -6,15 +6,17 @@ import pandas as pd
 import numpy as np
 from yt_dlp import YoutubeDL
 from moviepy.editor import AudioFileClip
-import vlc
 from difflib import get_close_matches
 import random
-from text_to_speech import save
 from playsound import playsound
 import speech_recognition as sr
 import winsound
 import Athena.athena as ath
-import re
+import webbrowser
+import pyttsx3
+import wikipedia
+import datetime
+from pygame import mixer
 
 # Load knowledge data.
 knowledge = ath.knowledge
@@ -24,17 +26,21 @@ load_dotenv()
 # Get youtube API Key
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
 youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+engine = pyttsx3.init()
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[1].id)
 
 # Create general voice files:
 # PS: Bad spelling is for good pronounciation.
-save("Hello, I am Athayna, what is your name?", "en", file="Athena/data/name.mp3")
-save("What kind of joke do you want me to tell you?", "en", file="Athena/data/joke.mp3")
-save("I can't think of any jokes related to that topic", "en", file="Athena/data/nojoke.mp3")
-save("That's right!", "en", file="Athena/data/right.mp3")
-save("Have a nice day!", "en", file="Athena/data/exit.mp3")
-save("What calculation would you like me to perform?", "en", file="Athena/data/whatcalc.mp3")
-save("Can I help with anything else?", "en", file="Athena/data/help.mp3")
-
+engine.save_to_file("Hello, I am Athena, what is your name?", "Athena/data/name.wav")
+engine.save_to_file("What kind of joke do you want me to tell you?", "Athena/data/joke.wav")
+engine.save_to_file("I can't think of any jokes related to that topic", "Athena/data/nojoke.wav")
+engine.save_to_file("That's right!", "Athena/data/right.wav")
+engine.save_to_file("Have a nice day!", "Athena/data/exit.wav")
+engine.save_to_file("What calculation would you like me to perform?", "Athena/data/whatcalc.wav")
+engine.save_to_file("Can I help with anything else?", "Athena/data/help.wav")
+engine.runAndWait()
+engine.stop()
 # Find matches
 def find_match(query, questions):
     # Save the matches
@@ -54,7 +60,7 @@ def get_answer(query, knowledge):
 # Ask for the user's name
 def ask_name():
     # Print out question
-    playsound(os.getcwd() + '/Athena/data/name.mp3', True)
+    playsound(os.getcwd() + '/Athena/data/name.wav', True)
     # Ask for user's name
     with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source, duration=0.2)
@@ -69,19 +75,50 @@ def ask_name():
     knowledge["user"].append({"name": name})
     ath.save_knowledge(os.getcwd() + "/Athena/data/knowledge.json", knowledge)
 
-# Tell a joke
-def tell_joke():
-    # Speak the mp3 file
-    playsound(os.getcwd() + '/Athena/data/joke.mp3', True)
-    # Get the topic
+def search(query):
+    # Warn the user
+    engine.say("This will open your default browser, do you want to continue?")
+    engine.runAndWait()
+    engine.stop()
+    # Get user's input
     with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source, duration=0.2)
         frequency = 1000
-        duration = 100 
+        duration = 100
         winsound.Beep(frequency, duration)
         audio = r.listen(source)
 
-        topic = r.recognize_google(audio)
+        answer = r.recognize_google(audio)
+    # Check for user's consent
+    if("yes" in answer.lower() or "continue" in answer.lower()):
+        engine.say(f"I am opening your default browser to search for {query}.")
+        engine.runAndWait()
+        engine.stop()
+        # Ready query.
+        query = query.replace(" ", "+")
+        # Open the default browser
+        webbrowser.open_new(f"https://www.google.com/search?q={query}")
+    else:
+        # Tell user that google won't be opened.
+        engine.say("Not opening your default browser.")
+        engine.runAndWait()
+        engine.stop()
+
+# Tell a joke
+def tell_joke():
+    # Speak the mp3 file
+    playsound(os.getcwd() + '/Athena/data/joke.wav', True)
+    while True:
+        try:
+            # Get input from user.
+            with sr.Microphone() as source:
+                r.adjust_for_ambient_noise(source, duration=0.2) 
+                audio = r.listen(source)
+                # Save answer
+                topic = r.recognize_google(audio)
+            break
+        except:
+            continue
     # Check if topic exists.
     if(any(key in topic for key in knowledge["fun"][0]["jokes"].keys())):
         # Select the topic
@@ -89,10 +126,9 @@ def tell_joke():
         amount = len(knowledge["fun"][0]["jokes"][topic.lower()])
         joke = knowledge["fun"][0]["jokes"][topic.lower()][random.randint(0, amount-1)]
         # save the joke's question.
-        save(joke["question"], "en", file="Athena/data/jokequestion.mp3")
-        # Speak the mp3 file
-        playsound(os.getcwd() + '/Athena/data/jokequestion.mp3', True)
-        os.remove("Athena/data/jokequestion.mp3")
+        engine.say(joke["question"])
+        engine.runAndWait()
+        engine.stop()
         # Get user's answer.
         with sr.Microphone() as source:
             r.adjust_for_ambient_noise(source, duration=0.2) 
@@ -103,43 +139,53 @@ def tell_joke():
         # Check if answer is right.
         if(answer.lower() == joke["answer"].lower()):
             # Speak the mp3 file
-            playsound(os.getcwd() + '/Athena/data/right.mp3', True)
+            playsound(os.getcwd() + '/Athena/data/right.wav', True)
         else:
-            save(joke["answer"], "en", file="Athena/data/jokeanswer.mp3")
-            # Speak the mp3 file
-            playsound(os.getcwd() + '/Athena/data/jokeanswer.mp3', True)
-            os.remove("Athena/data/jokeanswer.mp3")
+            engine.say(joke["answer"])
+            engine.runAndWait()
+            engine.stop()
     else:
         # Speak the mp3 file
-        playsound(os.getcwd() + '/Athena/data/nojoke.mp3', True)
+        playsound(os.getcwd() + '/Athena/data/nojoke.wav', True)
 
 def math():
-    # Speak the mp3 file
-    playsound(os.getcwd() + '/Athena/data/whatcalc.mp3', True)
-    # Get user's answer.
-    with sr.Microphone() as source:
-        r.adjust_for_ambient_noise(source, duration=0.2) 
-        winsound.Beep(1000, 100)
-        audio = r.listen(source)
-        # Save answer
-        calc = r.recognize_google(audio)
+    # Speak the wav file
+    playsound(os.getcwd() + '/Athena/data/whatcalc.wav', True)
+
+    while True:
+        try:
+            # Get input from user.
+            with sr.Microphone() as source:
+                r.adjust_for_ambient_noise(source, duration=0.2) 
+                audio = r.listen(source)
+                # Save answer
+                calc = r.recognize_google(audio)
+            break
+        except:
+            continue
     try:
         calculation = calc.replace("x", "*").replace("^", "**")
         if("√" in calculation):
             calculation = f"np.sqrt({calculation.replace('√', '')})"
         calculated = eval(calculation)
-        save(f"{calc} is {calculated}", "en", file="Athena/data/calculation.mp3")
-        print(f"{calc} is {calculated}")
+        engine.say(f"{calc} is {calculated}")
+        engine.runAndWait()
+        engine.stop()
+
+        # engine.runAndWait()
+        print(f"{calc} = {calculated}")
     except:
-        save(f"A problem occured with the calculation.", "en", file="Athena/data/calculation.mp3")
-    # Speak the mp3 file
-    playsound(os.getcwd() + '/Athena/data/calculation.mp3', True)
-    os.remove("Athena/data/calculation.mp3")
+        engine.say(f"A problem occured with the calculation.")
+        engine.runAndWait()
+        engine.stop()
+        # engine.runAndWait()
+        # engine.stop()
 
 def play_song(query):
     # Tell the user that loading can take a bit.
-    save(f"Playing {query}, this can take a bit to load.", "en", file="Athena/data/playing.mp3")
-    playsound(os.getcwd() + "\Athena\data\playing.mp3", True)
+    engine.say(f"Playing {query}, this can take a bit to load.")
+    engine.runAndWait()
+    engine.stop()
     # Create request.
     request = youtube.search().list(
         part = "id,snippet",
@@ -163,48 +209,131 @@ def play_song(query):
         print("Download completed")
     audio_clip = AudioFileClip(os.getcwd() + "\Athena\data\youtube.mp3")
     audio_clip.write_audiofile("Athena\data\youtube1.mp3", bitrate="192k")
+    # Set the mixer
+    mixer.init()
     # Play song
-    playsound(os.getcwd() + "\Athena\data\youtube1.mp3", block=True)
+    mixer.music.load(os.getcwd() + "\Athena\data\youtube1.mp3")
+    mixer.music.play()
+    while True:
+        try:
+            # Get input from user.
+            with sr.Microphone() as source:
+                r.adjust_for_ambient_noise(source, duration=0.2) 
+                audio = r.listen(source)
+                # Save answer
+                user_input = r.recognize_google(audio)
+            if("stop" in user_input.lower()):
+                mixer.music.stop()
+                break
+        except:
+            continue
     os.remove("Athena/data/youtube.mp3")
-    os.remove("Athena/data/youtube1.mp3")
-    os.remove("Athena/data/playing.mp3")
 
 def chatbot():
     # Infinite loop
     while True:
-        # Get input from user.
-        with sr.Microphone() as source:
-            r.adjust_for_ambient_noise(source, duration=0.2) 
-            winsound.Beep(1000, 100)
-            audio = r.listen(source)
-            # Save answer
-            user_input = r.recognize_google(audio)
+        recognize = False
+        while recognize == False:
+            try:
+                # Get input from user.
+                with sr.Microphone() as source:
+                    r.adjust_for_ambient_noise(source, duration=0.2) 
+                    audio = r.listen(source)
+                    # Save answer
+                    user_input = r.recognize_google(audio)
+                if("athena" in user_input.lower()):
+                    user_input = user_input.lower().replace("athena ", "")
+                    recognize = True
+            except:
+                recognize = False
 
         match = find_match(user_input, [question["question"] for question in knowledge["questions"]])
         if(user_input.lower() == "quit" or user_input.lower() == "exit"):
             # Speak the mp3 file
-            playsound(os.getcwd() + '/Athena/data/exit.mp3', True)
+            playsound(os.getcwd() + '/Athena/data/exit.wav', True)
             break
         elif("play" in user_input.lower()):
             # Remove play from the query
             query = user_input.replace("play", "")
             # Play the song.
             play_song(query)
-            playsound(os.getcwd() + "/Athena/data/help.mp3", True)
-
+            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+        elif("current time" in user_input.lower()):
+            # Get the current date.
+            engine.say(f"Currently, it is {datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")}")
+            engine.runAndWait()
+            engine.stop()
+            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+            
+        # Search for information
+        elif("information on" in user_input.lower() or "what is" in user_input.lower() or "who is" in user_input.lower() or "tell me about" in user_input.lower()):
+            # Create the right query
+            query = user_input.replace("information on", "").replace("tell me about", ""). replace("who is", "").replace("what is", "")
+            try:
+                # get the result
+                result = wikipedia.summary(query, sentences=2)
+                # Tell the user about the information
+                engine.say("Wikipedia says")
+                engine.say(result)
+                engine.say(f"Would you like to hear more about {query}?")
+                engine.runAndWait()
+                engine.stop()
+                recognize = False
+                while True:
+                    try:
+                        # Get input from user.
+                        with sr.Microphone() as source:
+                            r.adjust_for_ambient_noise(source, duration=0.2)
+                            audio = r.listen(source)
+                            # Save answer
+                            user_input = r.recognize_google(audio)
+                        break
+                    except:
+                        continue
+                if("yes" in user_input.lower()):
+                    # get the result
+                    result = wikipedia.summary(query).replace(".", ". ")
+                    # Tell the user about the information
+                    engine.save_to_file(result, "Athena/data/result.wav")
+                    engine.runAndWait()
+                    engine.stop()
+                    mixer.music.load(os.getcwd() + r"\Athena\data\result.wav")
+                    mixer.music.play()
+                    while True:
+                        try:
+                            # Get input from user.
+                            with sr.Microphone() as source:
+                                r.adjust_for_ambient_noise(source, duration=0.2)
+                                audio = r.listen(source)
+                                # Save answer
+                                user_input = r.recognize_google(audio)
+                            if("stop" in user_input.lower()):
+                                mixer.music.stop()
+                                break
+                        except:
+                            continue
+                    mixer.music.unload()
+                    os.remove("Athena/data/result.wav")
+            except:
+                engine.say("I couldn't find information on that topic.")
+            engine.runAndWait()
+            engine.stop()
+            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+        elif("search" in user_input.lower()):
+            query = user_input.replace("search", "")
+            search(query)
+            playsound(os.getcwd() + "/Athena/data/help.wav", True)
         elif("tell me a joke" in user_input.lower()):
             tell_joke()
-            playsound(os.getcwd() + "/Athena/data/help.mp3", True)
+            playsound(os.getcwd() + "/Athena/data/help.wav", True)
         elif("calculate" in user_input.lower() or "math question" in user_input.lower() or "calculation" in user_input.lower()):
             math()
-            playsound(os.getcwd() + "/Athena/data/help.mp3", True)
+            playsound(os.getcwd() + "/Athena/data/help.wav", True)
         elif(match):
             answer = get_answer(match, knowledge)
-            save(answer, "en", file="Athena/data/answer.mp3")
-            # Speak the mp3 file
-            playsound(os.getcwd() + '/Athena/data/answer.mp3', True)
-            
-            os.remove("Athena/data/answer.mp3")
+            engine.say(answer)
+            engine.runAndWait()
+            engine.stop()
         else:
             # This happens in console for learning purposes.
             print("What would you like me to answer with?")
@@ -222,9 +351,8 @@ if len(knowledge["user"]) == 0:
 name = knowledge["user"][0]["name"]
 
 # save the joke's question.
-save(f"Hello {name}, what can I help you with?", "en", file="Athena/data/hello.mp3")
-# Speak the mp3 file
-playsound(os.getcwd() + '/Athena/data/hello.mp3')
-
+engine.say(f"Hello {name}, what can I help you with?")
+engine.runAndWait()
+engine.stop()
 # Run function.
 chatbot()
