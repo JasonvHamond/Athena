@@ -130,12 +130,12 @@
       "answer": "Sorry, did I misunderstand anything?"
     },
     {
-      "question": "yes",
-      "answer": "Good to know."
+      "question": "No",
+      "answer": "Yuh uh"
     },
     {
-      "question": " exit",
-      "answer": "."
+      "question": "Yes",
+      "answer": "Nuh uh"
     }
   ],
   "fun": [
@@ -162,6 +162,150 @@
           }
         ]
       }
+    },
+    {
+      "random": {
+          "recipe": [
+            {
+              "name": "Taco"
+            },
+            {
+              "name": "Peasoup"
+            },
+            {
+              "name": "Schnitzel"
+            },
+            {
+              "name": "Shoarma"
+            },
+            {
+              "name": "Boerenkool"
+            }
+          ],
+          "game": [
+            {
+              "name": "Splatoon"
+            },
+            {
+              "name": "Splatoon 2"
+            },
+            {
+              "name": "Splatoon 3"
+            },
+            {
+              "name": "Pikmin"
+            },
+            {
+              "name": "Pikmin 2"
+            },
+            {
+              "name": "Pikmin 3"
+            },
+            {
+              "name": "Pikmin 4"
+            },
+            {
+              "name": "Hey! Pikmin"
+            },
+            {
+              "name": "Kid Icarus"
+            },
+            {
+              "name": "Kid Icarus Myths and Monsters"
+            },
+            {
+              "name": "Kid Icarus Uprising"
+            },
+            {
+              "name": "Kirby's Dream Land"
+            },
+            {
+              "name": "Kirby's Dream Land 2"
+            },
+            {
+              "name": "Kirby's Dream Land 3"
+            },
+            {
+              "name": "Kirby's Adventure"
+            },
+            {
+              "name": "Kirby Super Star"
+            },
+            {
+              "name": "Kirby 64: The Crystal Shards"
+            },
+            {
+              "name": "Kirby and the Amazing Mirror"
+            },
+            {
+              "name": "Kirby: Squeak Squad"
+            },
+            {
+              "name": "Kirby's Return to Dream Land"
+            },
+            {
+              "name": "Kirby: Triple Deluxe"
+            },
+            {
+              "name": "Kirby: Planet Robobot"
+            },
+            {
+              "name": "Kirby Star Allies"
+            },
+            {
+              "name": "Kirby and the Forgotten Land"
+            },
+            {
+              "name": "Kirby: Canvas Curse"
+            },
+            {
+              "name": "Kirby's Epic Yarn"
+            },
+            {
+              "name": "Kirby Mass Attack"
+            },
+            {
+              "name": "Kirby and the Rainbow Curse"
+            },
+            {
+              "name": "Kirby: Nightmare in Dream Land"
+            },
+            {
+              "name": "Kirby Super Star Ultra"
+            },
+            {
+              "name": "Kirby's Dream Collection"
+            },
+            
+            {
+              "name": "Kirby's Return to Dream Land Deluxe"
+            },
+            {
+              "name": "Kirby's Pinball Land"
+            },
+            {
+              "name": "Kirby's Dream Course"
+            },
+            {
+              "name": "Kirby's Avalanche"
+            },
+            {
+              "name": "Kirby's Block Ball"
+            },
+            {
+              "name": "Kirby's Star Stacker"
+            },
+            {
+              "name": "Kirby Tilt 'n Tumble"
+            },          
+            {
+              "name": "Kirby Air Ride"
+            },
+            {
+              "name": "Kirby's Dream Buffet"
+            }
+          ]
+        }
     }
   ]
 }
