@@ -20,6 +20,8 @@ import datetime
 from pygame import mixer
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume, ISimpleAudioVolume
+import time
+import ffmpeg
 
 # Load knowledge data.
 knowledge = ath.knowledge
@@ -44,6 +46,13 @@ engine.save_to_file("What calculation would you like me to perform?", "Athena/da
 engine.save_to_file("Can I help with anything else?", "Athena/data/help.wav")
 engine.runAndWait()
 engine.stop()
+
+def combine_audio(vidname, audname, outname, fps=60): 
+    import moviepy.editor as mpe
+    my_clip = mpe.VideoFileClip(vidname)
+    audio_background = mpe.AudioFileClip(audname)
+    final_clip = my_clip.set_audio(audio_background)
+    final_clip.write_videofile(outname,fps=fps)
 
 def listen_voice():
     try:
@@ -242,6 +251,74 @@ def play_song(query):
     os.remove("Athena/data/youtube.mp3")
     os.remove("Athena/data/youtube1.mp3")
 
+def download_yt():
+    # Tell the user the instructions.
+    engine.say(f"A text file will be opened, enter the URL in this file.")
+    engine.runAndWait()
+    engine.stop()
+    # Open text file in Notepad
+    fileName = "Athena\data\youtube_url.txt"
+    os.startfile(fileName)
+    # Wait until file is updated.
+    file_update = False
+    while file_update == False:
+        with open(fileName, 'r') as file_obj:
+            # read first character
+            first_char = file_obj.read(1)
+        
+            if not first_char:
+                continue
+            else:
+                file_update = True
+        time.sleep(1)
+    # Read the first line of the txt file
+    with open(fileName) as f:
+        url = f.readline().strip("\n")
+    open(fileName, "w").close()
+    with YoutubeDL({'extract_audio': False, 'format': 'bestvideo', 'outtmpl': 'Athena/data/youtube.mp4'}) as video:
+        info_dict = video.extract_info(url, download = True)
+        video_title = info_dict['title']
+        print(video_title)
+    with YoutubeDL({'extract_audio': True, 'format': 'bestaudio', 'outtmpl': 'Athena/data/youtube.mp3'}) as video:
+        info_dict = video.extract_info(url, download = True)
+        video_title = info_dict['title']
+        print(video_title)
+    engine.say(f"What name would you like to give to this file?.")
+    engine.runAndWait()
+    engine.stop()
+    vidname = listen_voice()
+
+    combine_audio("Athena/data/youtube.mp4", "Athena/data/youtube.mp3", f"Athena/data/funny/{vidname}.mp4")
+    engine.say(f"Download completed, check Athena/data/{vidname}.mp4 for your downloaded file.")
+    engine.runAndWait()
+    engine.stop()
+    os.remove("Athena/data/youtube.mp3")
+    os.remove("Athena/data/youtube.mp4")
+
+def something_funny():
+    # Get all files
+    files = os.listdir("Athena\\data\\funny")
+    os.startfile(f"Athena\\data\\funny\\{random.choice(files)}")
+
+def video_name(query):
+    matching = []
+    # Get all files 
+    directory = "Athena\\data\\funny"
+    # Check if there are any files with name
+    for file in os.listdir(directory):
+        if query.replace(" ", "") in file:
+            matching.append(file)
+    os.startfile(f"Athena\\data\\funny\\{random.choice(matching)}")
+
+def stopfighting():
+    os.startfile(f"Athena\\data\\funny\\dog.jpg")
+    # Set the mixer
+    mixer.init()
+    time.sleep(1)
+    # Play song
+    mixer.music.load(os.getcwd() + f"/Athena/data/funny/stopfighting.mp3")
+    mixer.music.play()
+
 def increase_volume(volume):
     sessions = AudioUtilities.GetAllSessions()
     volume = volume.replace("increaseto", "").replace("decreaseto", "").replace("changeto", "").replace("setto", "")
@@ -255,7 +332,7 @@ def increase_volume(volume):
         vol.SetMasterVolume(new_vol, None)
     engine.say(f"Volume changed to {volume}")
     engine.runAndWait()
-    engine.stop()
+    engine.stop() 
     
 def chatbot():
     # Infinite loop
@@ -268,6 +345,12 @@ def chatbot():
                 if("athena" in user_input.lower()):
                     user_input = user_input.lower().replace("athena ", "")
                     recognize = True
+                elif("stop" in user_input.lower()):
+                    stopfighting()
+                    raise Exception("Stop fighting!")
+                else:
+                    # Check if there is a video with name.
+                    video_name(user_input)
             except:
                 recognize = False
 
@@ -282,6 +365,15 @@ def chatbot():
             # Play the song.
             play_song(query)
             playsound(os.getcwd() + "/Athena/data/help.wav", True)
+        elif("download" in user_input.lower()):
+            # Download the YT video.
+            download_yt()
+            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+        elif("show" in user_input.lower() and "funny" in user_input.lower()):
+            something_funny()
+            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+        elif("stop fighting" in user_input.lower()):
+            stopfighting()
         elif("current time" in user_input.lower()):
             # Get the current date.
             engine.say(f"Currently, it is {datetime.datetime.now().strftime('%I:%M%p on %B %d, %Y')}")
