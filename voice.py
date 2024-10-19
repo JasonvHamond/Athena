@@ -35,15 +35,17 @@ engine = pyttsx3.init()
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
 
+init = os.path.dirname(os.path.abspath(__file__))
+
 # Create general voice files:
 # PS: Bad spelling is for good pronounciation.
-engine.save_to_file("Hello, I am Athena, what is your name?", "Athena/data/name.wav")
-engine.save_to_file("What kind of joke do you want me to tell you?", "Athena/data/joke.wav")
-engine.save_to_file("I can't think of any jokes related to that topic", "Athena/data/nojoke.wav")
-engine.save_to_file("That's right!", "Athena/data/right.wav")
-engine.save_to_file("Have a nice day!", "Athena/data/exit.wav")
-engine.save_to_file("What calculation would you like me to perform?", "Athena/data/whatcalc.wav")
-engine.save_to_file("Can I help with anything else?", "Athena/data/help.wav")
+engine.save_to_file("Hello, I am Athena, what is your name?", f"{init}/data/name.wav")
+engine.save_to_file("What kind of joke do you want me to tell you?", f"{init}/data/joke.wav")
+engine.save_to_file("I can't think of any jokes related to that topic", f"{init}/data/nojoke.wav")
+engine.save_to_file("That's right!", f"{init}/data/right.wav")
+engine.save_to_file("Have a nice day!", f"{init}/data/exit.wav")
+engine.save_to_file("What calculation would you like me to perform?", f"{init}/data/whatcalc.wav")
+engine.save_to_file("Can I help with anything else?", f"{init}/data/help.wav")
 engine.runAndWait()
 engine.stop()
 
@@ -84,16 +86,16 @@ def get_answer(query, knowledge):
         if(question["question"] == query):
             # Return the answer.
             return question["answer"]
-        
+
 # Ask for the user's name
 def ask_name():
     # Print out question
-    playsound(os.getcwd() + '/Athena/data/name.wav', True)
+    playsound(f"{init}/data/name.wav", True)
     # Ask for user's name
     name = listen_voice()
     # Save name.
     knowledge["user"].append({"name": name})
-    ath.save_knowledge(os.getcwd() + "/Athena/data/knowledge.json", knowledge)
+    ath.save_knowledge(f"{init}/data/knowledge.json", knowledge)
 
 def search(query):
     # Warn the user
@@ -132,7 +134,7 @@ def open_web(query):
 # Tell a joke
 def tell_joke():
     # Speak the mp3 file
-    playsound(os.getcwd() + '/Athena/data/joke.wav', True)
+    playsound(f"{init}/data/joke.wav", True)
     while True:
         try:
             # Get input from user.
@@ -155,14 +157,14 @@ def tell_joke():
         # Check if answer is right.
         if(answer.lower() == joke["answer"].lower()):
             # Speak the mp3 file
-            playsound(os.getcwd() + '/Athena/data/right.wav', True)
+            playsound(f"{init}/data/right.wav", True)
         else:
             engine.say(joke["answer"])
             engine.runAndWait()
             engine.stop()
     else:
         # Speak the mp3 file
-        playsound(os.getcwd() + '/Athena/data/nojoke.wav', True)
+        playsound(f"{init}/data/nojoke.wav", True)
 
 # Tell a joke
 def randomizer(query):
@@ -179,7 +181,7 @@ def randomizer(query):
 
 def math():
     # # Speak the wav file
-    # playsound(os.getcwd() + '/Athena/data/whatcalc.wav', True)
+    # playsound('/Athena/data/whatcalc.wav', True)
     engine.say("What calculation would you like me to perform?")
     engine.runAndWait()
     engine.stop()
@@ -231,12 +233,12 @@ def play_song(query):
         print(video_title)
         # video.download(url)
         print("Download completed")
-    audio_clip = AudioFileClip(os.getcwd() + "\Athena\data\youtube.mp3")
-    audio_clip.write_audiofile("Athena\data\youtube1.mp3", bitrate="192k")
+    audio_clip = AudioFileClip(f"{init}\data\youtube.mp3")
+    audio_clip.write_audiofile(f"{init}\data\youtube1.mp3", bitrate="192k")
     # Set the mixer
     mixer.init()
     # Play song
-    mixer.music.load(os.getcwd() + "\Athena\data\youtube1.mp3")
+    mixer.music.load(f"{init}\data\youtube1.mp3")
     mixer.music.play()
     while True:
         try:
@@ -248,8 +250,8 @@ def play_song(query):
         except:
             continue
     mixer.music.unload()
-    os.remove("Athena/data/youtube.mp3")
-    os.remove("Athena/data/youtube1.mp3")
+    os.remove(f"{init}/data/youtube.mp3")
+    os.remove(f"{init}/data/youtube1.mp3")
 
 def download_yt():
     # Tell the user the instructions.
@@ -257,7 +259,7 @@ def download_yt():
     engine.runAndWait()
     engine.stop()
     # Open text file in Notepad
-    fileName = "Athena\data\youtube_url.txt"
+    fileName = f"{init}\data\youtube_url.txt"
     os.startfile(fileName)
     # Wait until file is updated.
     file_update = False
@@ -275,11 +277,11 @@ def download_yt():
     with open(fileName) as f:
         url = f.readline().strip("\n")
     open(fileName, "w").close()
-    with YoutubeDL({'extract_audio': False, 'format': 'bestvideo', 'outtmpl': 'Athena/data/youtube.mp4'}) as video:
+    with YoutubeDL({'extract_audio': False, 'format': 'bestvideo', 'outtmpl': f"{init}/data/youtube.mp4"}) as video:
         info_dict = video.extract_info(url, download = True)
         video_title = info_dict['title']
         print(video_title)
-    with YoutubeDL({'extract_audio': True, 'format': 'bestaudio', 'outtmpl': 'Athena/data/youtube.mp3'}) as video:
+    with YoutubeDL({'extract_audio': True, 'format': 'bestaudio', 'outtmpl': f"{init}/data/youtube.mp3"}) as video:
         info_dict = video.extract_info(url, download = True)
         video_title = info_dict['title']
         print(video_title)
@@ -288,36 +290,68 @@ def download_yt():
     engine.stop()
     vidname = listen_voice()
 
-    combine_audio("Athena/data/youtube.mp4", "Athena/data/youtube.mp3", f"Athena/data/funny/{vidname}.mp4")
+    combine_audio(f"{init}/data/youtube.mp4", f"{init}/data/youtube.mp3", f"{init}/data/funny/{vidname}.mp4")
     engine.say(f"Download completed, check Athena/data/{vidname}.mp4 for your downloaded file.")
     engine.runAndWait()
     engine.stop()
-    os.remove("Athena/data/youtube.mp3")
-    os.remove("Athena/data/youtube.mp4")
+    os.remove(f"{init}/data/youtube.mp3")
+    os.remove(f"{init}/data/youtube.mp4")
 
 def something_funny():
     # Get all files
-    files = os.listdir("Athena\\data\\funny")
-    os.startfile(f"Athena\\data\\funny\\{random.choice(files)}")
+    files = os.listdir(f"{init}\\data\\funny")
+    os.startfile(f"{init}\\data\\funny\\{random.choice(files)}")
 
 def video_name(query):
     matching = []
     # Get all files 
-    directory = "Athena\\data\\funny"
+    directory = f"{init}\\data\\funny"
     # Check if there are any files with name
     for file in os.listdir(directory):
         if query.replace(" ", "") in file:
             matching.append(file)
-    os.startfile(f"Athena\\data\\funny\\{random.choice(matching)}")
+    os.startfile(f"{init}\\data\\funny\\{random.choice(matching)}")
 
 def stopfighting():
-    os.startfile(f"Athena\\data\\funny\\dog.jpg")
+    os.startfile(f"{init}\\data\\funny\\dog.jpg")
     # Set the mixer
     mixer.init()
     time.sleep(1)
     # Play song
-    mixer.music.load(os.getcwd() + f"/Athena/data/funny/stopfighting.mp3")
+    mixer.music.load(f"{init}/data/funny/stopfighting.mp3")
     mixer.music.play()
+
+def objection(query):
+    phrases = ["better", "should", "could", "you", " I ", "worse"]
+    anti = ["worse", "should not", "could not", "I", " you ", "better"]
+    i = 0
+    for phrase in phrases:
+        if phrase in query:
+            query = query.replace(phrase, anti[i])
+        i+=1
+    os.startfile(f"{init}\\data\\funny\\objectionscream\\objection.png")
+    # Set the mixer
+    mixer.init()
+    time.sleep(1)
+    # Play sfx
+    mixer.music.load(f"{init}/data/funny/objectionscream/phoenix-objection.mp3")
+    mixer.music.play()
+    # Initiate list
+    objection = []
+    # Add all files to list.
+    for file in os.listdir(f"{init}\\data\\funny\\objection"):
+        objection.append(file)
+    # Play the actual song
+    mixer.init()
+    time.sleep(1)
+    file = random.choice(objection)
+    # Play music
+    mixer.music.load(f"{init}/data/funny/objection/{file}")
+    mixer.music.set_volume(0.4)
+    mixer.music.play()
+    engine.say(f"Your honor, nuh uh! {query}")
+    engine.runAndWait()
+    engine.stop() 
 
 def increase_volume(volume):
     sessions = AudioUtilities.GetAllSessions()
@@ -357,29 +391,31 @@ def chatbot():
         match = find_match(user_input, [question["question"] for question in knowledge["questions"]])
         if("quit" in user_input.lower() or "exit" in user_input.lower()):
             # Speak the mp3 file
-            playsound(os.getcwd() + '/Athena/data/exit.wav', True)
+            playsound(f"{init}/data/exit.wav", True)
             break
         elif("play" in user_input.lower()):
             # Remove play from the query
             query = user_input.replace("play", "")
             # Play the song.
             play_song(query)
-            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+            playsound(f"{init}/data/help.wav", True)
         elif("download" in user_input.lower()):
             # Download the YT video.
             download_yt()
-            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+            playsound(f"{init}/data/help.wav", True)
         elif("show" in user_input.lower() and "funny" in user_input.lower()):
             something_funny()
-            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+            playsound(f"{init}/data/help.wav", True)
         elif("stop fighting" in user_input.lower()):
             stopfighting()
+        elif("in my opinion" in user_input.lower() or "i think" in user_input.lower()):
+            objection(user_input)
         elif("current time" in user_input.lower()):
             # Get the current date.
             engine.say(f"Currently, it is {datetime.datetime.now().strftime('%I:%M%p on %B %d, %Y')}")
             engine.runAndWait()
             engine.stop()
-            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+            playsound(f"{init}/data/help.wav", True)
         # Search for information
         elif("information on" in user_input.lower() or "what is" in user_input.lower() or "who is" in user_input.lower() or "tell me about" in user_input.lower()):
             # Create the right query
@@ -405,11 +441,11 @@ def chatbot():
                     # get the result
                     result = wikipedia.summary(query).replace(".", ". ")
                     # Tell the user about the information
-                    engine.save_to_file(result, "Athena/data/result.wav")
+                    engine.save_to_file(result, f"{init}/data/result.wav")
                     engine.runAndWait()
                     engine.stop()
                     # Play the audio.
-                    mixer.music.load(os.getcwd() + r"\Athena\data\result.wav")
+                    mixer.music.load(r"\Athena\data\result.wav")
                     mixer.music.play()
                     # Infinite loop.
                     while True:
@@ -425,35 +461,35 @@ def chatbot():
                             continue
                     # Exit audio.
                     mixer.music.unload()
-                    os.remove("Athena/data/result.wav")
+                    os.remove(f"{init}/data/result.wav")
             except:
                 engine.say("I couldn't find information on that topic.")
             engine.runAndWait()
             engine.stop()
-            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+            playsound(f"{init}/data/help.wav", True)
         elif("random" in user_input.lower()):
             query = user_input.lower().replace("random", "")
             randomizer(query)
-            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+            playsound(f"{init}/data/help.wav", True)
         # If the user says open.
         elif("open" in user_input.lower()):
             # Create query.
             query = user_input.lower().replace("open", "")
             open_web(query)
-            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+            playsound(f"{init}/data/help.wav", True)
         # If the user says search.
         elif("search" in user_input.lower()):
             # Remove keywords.
             query = user_input.replace("search for", "").replace("search up", "").replace("search", "")
             # Search for query.
             search(query)
-            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+            playsound(f"{init}/data/help.wav", True)
         elif("tell me a joke" in user_input.lower()):
             tell_joke()
-            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+            playsound(f"{init}/data/help.wav", True)
         elif("calculate" in user_input.lower() or "math question" in user_input.lower() or "calculation" in user_input.lower()):
             math()
-            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+            playsound(f"{init}/data/help.wav", True)
         elif("volume" in user_input.lower()):
             # Remove volume and spaces from query for easier usage.
             volume = user_input.lower().replace("volume", "").replace(" ", "")
@@ -464,7 +500,7 @@ def chatbot():
                 engine.say("Something went wrong.")
                 engine.runAndWait()
                 engine.stop()
-            playsound(os.getcwd() + "/Athena/data/help.wav", True)
+            playsound(f"{init}/data/help.wav", True)
         elif(match):
             # Search for best best answer to question.d
             answer = get_answer(match, knowledge)
