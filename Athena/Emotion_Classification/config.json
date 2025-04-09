@@ -1,0 +1,19 @@
+{
+    "app": {
+        "destination": "data"
+    },
+    "whisper": {
+        "mode": "turbo",
+        "lang": "nl"
+    },
+    "translator": {
+      "model": "Models/Translator/Translations_it1",
+      "tokenizer": "Models/Tokenizers/Translations_it1"
+    },
+    "classifier": {
+      "model": "Models/Model/BERTje_it8",
+      "tokenizer": "Models/Tokenizers/BERTje_it8",
+      "encoder": "Models/Encoders/it8_label_encoder.pkl"
+    }
+  }
+  
